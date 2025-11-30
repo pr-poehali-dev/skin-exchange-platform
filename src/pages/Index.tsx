@@ -97,6 +97,7 @@ const rarityGlow = {
 export default function Index() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTab, setSelectedTab] = useState('all');
+  const [balance, setBalance] = useState(45750);
 
   const filteredSkins = mockSkins.filter((skin) => {
     const matchesSearch = skin.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -111,6 +112,20 @@ export default function Index() {
         
         <div className="relative container mx-auto px-4 py-8">
           <header className="mb-12 text-center animate-slide-in">
+            <div className="flex justify-end mb-4">
+              <Card className="border-2 border-primary/30 bg-card/80 backdrop-blur-sm glow-primary">
+                <CardContent className="p-4 flex items-center gap-4">
+                  <div className="text-right">
+                    <p className="text-sm text-muted-foreground">Ваш баланс</p>
+                    <p className="text-2xl font-bold text-primary text-glow">{balance.toLocaleString()} ₽</p>
+                  </div>
+                  <Button size="sm" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
+                    <Icon name="Plus" className="mr-1 w-4 h-4" />
+                    Пополнить
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
             <div className="inline-flex items-center gap-3 mb-4">
               <Icon name="Shield" className="text-primary w-12 h-12 animate-pulse-glow" />
               <h1 className="text-6xl font-bold text-glow bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
