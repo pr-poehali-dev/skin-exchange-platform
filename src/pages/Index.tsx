@@ -9,6 +9,8 @@ import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import CaseOpening, { type CaseItem } from '@/components/CaseOpening';
 import Inventory, { rarityValues, type InventoryItem } from '@/components/Inventory';
+import AuthDialog from '@/components/AuthDialog';
+import UserProfile, { type UserStats } from '@/components/UserProfile';
 
 interface Skin {
   id: string;
@@ -105,6 +107,22 @@ export default function Index() {
   const [topUpAmount, setTopUpAmount] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const [user, setUser] = useState<{
+    id: string;
+    name: string;
+    avatar: string;
+    steamId: string;
+    verified: boolean;
+    joinDate: Date;
+  } | null>(null);
+  const [userStats, setUserStats] = useState<UserStats>({
+    casesOpened: 0,
+    itemsWon: 0,
+    totalSpent: 0,
+    totalEarned: 0,
+    tradingLevel: 1,
+  });
 
   const handleTopUp = () => {
     if (topUpAmount && parseFloat(topUpAmount) > 0) {
@@ -135,11 +153,46 @@ export default function Index() {
       wonAt: new Date(),
     };
     setInventory(prev => [newItem, ...prev]);
+    setUserStats(prev => ({
+      ...prev,
+      casesOpened: prev.casesOpened + 1,
+      itemsWon: prev.itemsWon + 1,
+      totalSpent: prev.totalSpent + 250,
+      tradingLevel: Math.floor(prev.casesOpened / 10) + 1,
+    }));
   };
 
   const handleSellItem = (itemId: string, value: number) => {
     setInventory(prev => prev.filter(item => item.id !== itemId));
     setBalance(prev => prev + value);
+    setUserStats(prev => ({
+      ...prev,
+      totalEarned: prev.totalEarned + value,
+    }));
+  };
+
+  const handleSteamLogin = () => {
+    setUser({
+      id: '1',
+      name: 'ProGamer2024',
+      avatar: 'https://cdn.poehali.dev/projects/70a92364-3a8e-4df8-8e07-799dfa0b8197/files/9c1a0a5e-02cf-4683-aaef-3a05dcb45efb.jpg',
+      steamId: '76561198012345678',
+      verified: true,
+      joinDate: new Date('2024-01-15'),
+    });
+    setIsAuthOpen(false);
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setInventory([]);
+    setUserStats({
+      casesOpened: 0,
+      itemsWon: 0,
+      totalSpent: 0,
+      totalEarned: 0,
+      tradingLevel: 1,
+    });
   };
 
   return (
@@ -149,7 +202,20 @@ export default function Index() {
         
         <div className="relative container mx-auto px-4 py-8">
           <header className="mb-12 text-center animate-slide-in">
-            <div className="flex justify-end mb-4">
+            <div className="flex justify-between items-start mb-4">
+              <div>
+                {!user ? (
+                  <Button
+                    onClick={() => setIsAuthOpen(true)}
+                    className="bg-gradient-to-r from-[#171a21] to-[#1b2838] hover:from-[#1b2838] hover:to-[#171a21] border-2 border-primary/30"
+                  >
+                    <Icon name="LogIn" className="mr-2 w-4 h-4" />
+                    Войти через Steam
+                  </Button>
+                ) : (
+                  <UserProfile user={user} stats={userStats} onLogout={handleLogout} />
+                )}
+              </div>
               <Card className="border-2 border-primary/30 bg-card/80 backdrop-blur-sm glow-primary">
                 <CardContent className="p-4 flex items-center gap-4">
                   <div className="text-right">
@@ -383,6 +449,12 @@ export default function Index() {
           )}
         </div>
       </div>
+
+      <AuthDialog
+        open={isAuthOpen}
+        onOpenChange={setIsAuthOpen}
+        onSteamLogin={handleSteamLogin}
+      />
 
       <section className="relative py-16 mt-16 border-t border-primary/20">
         <div className="container mx-auto px-4">
