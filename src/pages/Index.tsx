@@ -4,6 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 
 interface Skin {
@@ -98,6 +100,17 @@ export default function Index() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTab, setSelectedTab] = useState('all');
   const [balance, setBalance] = useState(45750);
+  const [topUpAmount, setTopUpAmount] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleTopUp = () => {
+    if (topUpAmount && parseFloat(topUpAmount) > 0) {
+      const yumoneyUrl = `https://yoomoney.ru/quickpay/confirm?receiver=410011234567890&sum=${topUpAmount}&label=SkinTrade&quickpay-form=button`;
+      window.open(yumoneyUrl, '_blank');
+      setIsDialogOpen(false);
+      setTopUpAmount('');
+    }
+  };
 
   const filteredSkins = mockSkins.filter((skin) => {
     const matchesSearch = skin.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -119,10 +132,82 @@ export default function Index() {
                     <p className="text-sm text-muted-foreground">Ваш баланс</p>
                     <p className="text-2xl font-bold text-primary text-glow">{balance.toLocaleString()} ₽</p>
                   </div>
-                  <Button size="sm" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
-                    <Icon name="Plus" className="mr-1 w-4 h-4" />
-                    Пополнить
-                  </Button>
+                  <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button size="sm" className="bg-secondary hover:bg-secondary/90 text-secondary-foreground">
+                        <Icon name="Plus" className="mr-1 w-4 h-4" />
+                        Пополнить
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-md border-2 border-primary/30 bg-card">
+                      <DialogHeader>
+                        <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                          Пополнение баланса
+                        </DialogTitle>
+                        <DialogDescription>
+                          Введите сумму для пополнения через ЮМани
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="amount">Сумма пополнения (₽)</Label>
+                          <Input
+                            id="amount"
+                            type="number"
+                            placeholder="Введите сумму..."
+                            value={topUpAmount}
+                            onChange={(e) => setTopUpAmount(e.target.value)}
+                            className="border-2 border-primary/30 focus:border-primary"
+                          />
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setTopUpAmount('500')}
+                            className="flex-1"
+                          >
+                            500 ₽
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setTopUpAmount('1000')}
+                            className="flex-1"
+                          >
+                            1000 ₽
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setTopUpAmount('5000')}
+                            className="flex-1"
+                          >
+                            5000 ₽
+                          </Button>
+                        </div>
+                        <div className="bg-muted/50 border border-primary/20 rounded-lg p-4">
+                          <div className="flex items-start gap-3">
+                            <Icon name="Wallet" className="text-primary w-6 h-6 mt-1" />
+                            <div>
+                              <p className="font-semibold text-sm mb-1">Оплата через ЮМани</p>
+                              <p className="text-xs text-muted-foreground">
+                                После нажатия кнопки откроется страница ЮМани для безопасной оплаты
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={handleTopUp}
+                          disabled={!topUpAmount || parseFloat(topUpAmount) <= 0}
+                          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground glow-primary"
+                        >
+                          <Icon name="CreditCard" className="mr-2 w-4 h-4" />
+                          Перейти к оплате
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
                 </CardContent>
               </Card>
             </div>
