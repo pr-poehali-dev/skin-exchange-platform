@@ -105,7 +105,7 @@ export default function Index() {
 
   const handleTopUp = () => {
     if (topUpAmount && parseFloat(topUpAmount) > 0) {
-      const yumoneyUrl = `https://yoomoney.ru/quickpay/confirm?receiver=410011234567890&sum=${topUpAmount}&label=SkinTrade&quickpay-form=button`;
+      const yumoneyUrl = `https://yoomoney.ru/quickpay/confirm?receiver=4100119198547197&sum=${topUpAmount}&label=SkinTrade&quickpay-form=button`;
       window.open(yumoneyUrl, '_blank');
       setIsDialogOpen(false);
       setTopUpAmount('');
