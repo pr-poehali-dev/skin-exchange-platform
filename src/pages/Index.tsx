@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
+import CaseOpening from '@/components/CaseOpening';
 
 interface Skin {
   id: string;
@@ -114,9 +115,13 @@ export default function Index() {
 
   const filteredSkins = mockSkins.filter((skin) => {
     const matchesSearch = skin.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesTab = selectedTab === 'all' || skin.game.toLowerCase().includes(selectedTab.toLowerCase());
+    const matchesTab = selectedTab === 'marketplace' || selectedTab === 'all' || skin.game.toLowerCase().includes(selectedTab.toLowerCase());
     return matchesSearch && matchesTab;
   });
+
+  const handleBalanceChange = (newBalance: number) => {
+    setBalance(newBalance);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0A0A0F] via-[#1a0a2e] to-[#0A0A0F]">
@@ -248,12 +253,17 @@ export default function Index() {
             </div>
           </div>
 
-          <Tabs defaultValue="all" className="mb-8" onValueChange={setSelectedTab}>
-            <TabsList className="grid w-full max-w-md mx-auto grid-cols-3 bg-card/50 backdrop-blur-sm border border-primary/30">
-              <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                Все
+          <Tabs defaultValue="marketplace" className="mb-8" onValueChange={setSelectedTab}>
+            <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-4 bg-card/50 backdrop-blur-sm border border-primary/30">
+              <TabsTrigger value="marketplace" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                <Icon name="ShoppingBag" className="mr-2 w-4 h-4" />
+                Маркет
               </TabsTrigger>
-              <TabsTrigger value="csgo" className="data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground">
+              <TabsTrigger value="cases" className="data-[state=active]:bg-secondary data-[state=active]:text-secondary-foreground">
+                <Icon name="Package" className="mr-2 w-4 h-4" />
+                Кейсы
+              </TabsTrigger>
+              <TabsTrigger value="csgo" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">
                 CS:GO
               </TabsTrigger>
               <TabsTrigger value="valorant" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">
@@ -262,6 +272,11 @@ export default function Index() {
             </TabsList>
           </Tabs>
 
+          {selectedTab === 'cases' && (
+            <CaseOpening balance={balance} onBalanceChange={handleBalanceChange} />
+          )}
+
+          {selectedTab !== 'cases' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredSkins.map((skin, index) => (
               <Card
@@ -325,13 +340,14 @@ export default function Index() {
                 </CardFooter>
               </Card>
             ))}
-          </div>
 
-          {filteredSkins.length === 0 && (
-            <div className="text-center py-16">
-              <Icon name="SearchX" className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
-              <p className="text-xl text-muted-foreground">Скины не найдены</p>
-            </div>
+            {filteredSkins.length === 0 && (
+              <div className="text-center py-16 col-span-full">
+                <Icon name="SearchX" className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
+                <p className="text-xl text-muted-foreground">Скины не найдены</p>
+              </div>
+            )}
+          </div>
           )}
         </div>
       </div>
