@@ -219,9 +219,13 @@ function CaseRoulette({ selectedCase, onClose, onItemWon }: CaseOpeningProps) {
 interface CaseOpeningComponentProps {
   balance: number;
   onBalanceChange: (newBalance: number) => void;
+  onItemWon: (item: CaseItem) => void;
 }
 
-export default function CaseOpeningComponent({ balance, onBalanceChange }: CaseOpeningComponentProps) {
+export { rarityColors };
+export type { CaseItem };
+
+export default function CaseOpeningComponent({ balance, onBalanceChange, onItemWon }: CaseOpeningComponentProps) {
   const [selectedCase, setSelectedCase] = useState<Case | null>(null);
 
   const handleOpenCase = (caseItem: Case) => {
@@ -232,7 +236,7 @@ export default function CaseOpeningComponent({ balance, onBalanceChange }: CaseO
   };
 
   const handleItemWon = (item: CaseItem) => {
-    console.log('Won item:', item);
+    onItemWon(item);
   };
 
   return (

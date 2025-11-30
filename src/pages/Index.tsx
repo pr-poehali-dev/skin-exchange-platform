@@ -7,7 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
-import CaseOpening from '@/components/CaseOpening';
+import CaseOpening, { type CaseItem } from '@/components/CaseOpening';
+import Inventory, { rarityValues, type InventoryItem } from '@/components/Inventory';
 
 interface Skin {
   id: string;
@@ -99,10 +100,11 @@ const rarityGlow = {
 
 export default function Index() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTab, setSelectedTab] = useState('all');
+  const [selectedTab, setSelectedTab] = useState('marketplace');
   const [balance, setBalance] = useState(45750);
   const [topUpAmount, setTopUpAmount] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [inventory, setInventory] = useState<InventoryItem[]>([]);
 
   const handleTopUp = () => {
     if (topUpAmount && parseFloat(topUpAmount) > 0) {
@@ -121,6 +123,23 @@ export default function Index() {
 
   const handleBalanceChange = (newBalance: number) => {
     setBalance(newBalance);
+  };
+
+  const handleItemWon = (item: CaseItem) => {
+    const newItem: InventoryItem = {
+      id: `${Date.now()}-${Math.random()}`,
+      name: item.name,
+      rarity: item.rarity,
+      image: item.image,
+      value: rarityValues[item.rarity],
+      wonAt: new Date(),
+    };
+    setInventory(prev => [newItem, ...prev]);
+  };
+
+  const handleSellItem = (itemId: string, value: number) => {
+    setInventory(prev => prev.filter(item => item.id !== itemId));
+    setBalance(prev => prev + value);
   };
 
   return (
@@ -254,7 +273,7 @@ export default function Index() {
           </div>
 
           <Tabs defaultValue="marketplace" className="mb-8" onValueChange={setSelectedTab}>
-            <TabsList className="grid w-full max-w-2xl mx-auto grid-cols-4 bg-card/50 backdrop-blur-sm border border-primary/30">
+            <TabsList className="grid w-full max-w-3xl mx-auto grid-cols-5 bg-card/50 backdrop-blur-sm border border-primary/30">
               <TabsTrigger value="marketplace" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 <Icon name="ShoppingBag" className="mr-2 w-4 h-4" />
                 Маркет
@@ -263,17 +282,30 @@ export default function Index() {
                 <Icon name="Package" className="mr-2 w-4 h-4" />
                 Кейсы
               </TabsTrigger>
-              <TabsTrigger value="csgo" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">
+              <TabsTrigger value="inventory" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground relative">
+                <Icon name="Backpack" className="mr-2 w-4 h-4" />
+                Инвентарь
+                {inventory.length > 0 && (
+                  <Badge className="absolute -top-2 -right-2 bg-primary text-primary-foreground w-5 h-5 flex items-center justify-center p-0 text-xs">
+                    {inventory.length}
+                  </Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="csgo" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 CS:GO
               </TabsTrigger>
-              <TabsTrigger value="valorant" className="data-[state=active]:bg-accent data-[state=active]:text-accent-foreground">
+              <TabsTrigger value="valorant" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
                 Valorant
               </TabsTrigger>
             </TabsList>
           </Tabs>
 
           {selectedTab === 'cases' && (
-            <CaseOpening balance={balance} onBalanceChange={handleBalanceChange} />
+            <CaseOpening balance={balance} onBalanceChange={handleBalanceChange} onItemWon={handleItemWon} />
+          )}
+
+          {selectedTab === 'inventory' && (
+            <Inventory items={inventory} onSellItem={handleSellItem} />
           )}
 
           {selectedTab !== 'cases' && (
